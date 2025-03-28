@@ -1,0 +1,10 @@
+Package: DavisEasyPlot
+Type: Package
+Title: Easy Plot
+Version: 0.0.9000
+Author: Alexandra Davis
+Maintainer: alexandradavis@usf.edu
+Description: This package will take data and analyze and plot it to quickly return discrepancies in data.
+License: CCo
+Encoding: UTF-8
+LazyData: true
