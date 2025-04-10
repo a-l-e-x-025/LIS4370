@@ -1,0 +1,80 @@
+---
+title: "EasyPlotMarkdown"
+author: "Alexandra Davis"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#How to Use This R Markdown:
+
+1. **Load your data**: Replace *'"data.csv"'* with the path to your dataset file. Make sure that your data frame has a column called 'value' (or replace data$value with the approriate column name).
+  + Additionally, Replace the data import step              *('read.csv("data.csv")')* with the actual method you're using to load your data (such as 'read.xlsx()' for Excel files).
+2. **Outlier Detection**: The IQR method is used to identify the outliers. Outliers are values that are outside the bounds of 'Q1 - 1.5 * IQR' and 'Q3 + 1.5 * IQR'.
+3. **Plotting**: Ggplot is used to plot and visualize the data, showcasing the mean, Q1, median, Q3 and to highlight the outliers. 
+  + If necessary, adjust the 'geom_line()' and 'geom_point()' for style or data-specific adjustments.
+
+This R Markdown file will give you a detailed analysis of your data, including outlier detection, descriptive statistics, and a line plot to visualize these findings.
+
+#The Code:
+```{r}
+#Load the needed libraries
+library(ggplot2)   # For plotting
+library(dplyr)     # For data manipulation
+library(tidyr)     # For tidying data
+
+#Replace "data.csv" with your path to the data file
+data <- read.csv("data.csv")
+
+#Show the first few rows of the data 
+head(data)
+
+#Summary of the dataset
+summary(data)
+
+#Calculate the quartiles and IQR
+Q1 <- quantile(data$value, 0.25)
+Q3 <- quantile(data$value, 0.75)
+IQR_value <- Q3 - Q1
+
+#Define the outlier boundaries
+lower_bound <- Q1 - 1.5 * IQR_value
+upper_bound <- Q3 + 1.5 * IQR_value
+
+#Identify the outliers
+outliers <- data %>% filter(value < lower_bound | value > upper_bound)
+
+#Display the outliers
+outliers
+
+#The descriptive statistics
+mean_value <- mean(data$value, na.rm = TRUE)
+median_value <- median(data$value, na.rm = TRUE)
+Q1_value <- quantile(data$value, 0.25, na.rm = TRUE)
+Q3_value <- quantile(data$value, 0.75, na.rm = TRUE)
+
+mean_value
+median_value
+Q1_value
+Q3_value
+
+#Create a line plot with ggplot
+ggplot(data, aes(x = 1:nrow(data), y = value)) +
+  geom_line(color = "blue", size = 1) +
+  geom_point(aes(color = (value < lower_bound | value > upper_bound)), size = 2) +  #Highlights outliers
+  geom_hline(aes(yintercept = mean_value), color = "red", linetype = "dashed") +
+  geom_hline(aes(yintercept = median_value), color = "green", linetype = "dashed") +
+  geom_hline(aes(yintercept = Q1_value), color = "orange", linetype = "dotted") +
+  geom_hline(aes(yintercept = Q3_value), color = "orange", linetype = "dotted") +
+  labs(title = "Line Plot of Values with Outliers Highlighted",
+       x = "Index",
+       y = "Value") +
+  theme_minimal() +
+  scale_color_manual(values = c("TRUE" = "red", "FALSE" = "black"))  #Red points for outliers
+
+```
+
